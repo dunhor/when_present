@@ -27,6 +27,7 @@ ARGUMENTS
 
     lines
         The line number(s) to calculate
+
     file
         Path to the file to read from
 
@@ -296,5 +297,6 @@ int main(int argc, char** argv)
     {
         std::cout << "Requirements for line " << line << " being included in the translation unit:\n";
         process_line(line, conditionals);
+        std::cout << '\n';
     }
 }
