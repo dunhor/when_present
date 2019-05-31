@@ -12,7 +12,7 @@ using namespace std::literals;
 
 static void print_usage()
 {
-    std::cout << R"^-^(
+    printf(R"^-^(
 DESCRIPTION
 
     Calculates and displays the circumstances under which particular line
@@ -31,7 +31,7 @@ ARGUMENTS
     file
         Path to the file to read from
 
-)^-^";
+)^-^");
 }
 
 struct conditional_block;
@@ -83,7 +83,7 @@ static void process_line(int line, const std::vector<conditional>& conditionals)
             {
                 if (block->begin_line <= line && block->end_line > line)
                 {
-                    std::cout << "REQUIRES TRUE:  " << block->condition << '\n';
+                    printf("REQUIRES TRUE (%4d):  %s\n", block->begin_line, block->condition.c_str());
                     process_line(line, block->nested_conditionals);
 
                     // Ignore later blocks as they don't affect definition
@@ -92,7 +92,7 @@ static void process_line(int line, const std::vector<conditional>& conditionals)
                 else
                 {
                     // Otherwise the condition must be false. This is still relevant!
-                    std::cout << "REQUIRES FALSE: " << block->condition << '\n';
+                    printf("REQUIRES FALSE (%4d): %s\n", block->begin_line, block->condition.c_str());
                 }
             }
 
@@ -116,14 +116,14 @@ int main(int argc, char** argv)
         {
             if (!filePath.empty())
             {
-                std::cout << "ERROR: Path specified more than once\n";
+                printf("ERROR: Path specified more than once\n");
                 return print_usage(), 1;
             }
 
             ++begin;
             if (begin == end)
             {
-                std::cout << "ERROR: Missing path\n";
+                printf("ERROR: Missing path\n");
                 return print_usage(), 1;
             }
             filePath = *begin;
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
                 auto line = std::atoi(*begin);
                 if (line <= 0)
                 {
-                    std::cout << "ERROR: Invalid line number '" << *begin << "'\n";
+                    printf("ERROR: Invalid line number '%s'\n", *begin);
                     return print_usage(), 1;
                 }
                 lines.push_back(line);
@@ -154,19 +154,19 @@ int main(int argc, char** argv)
         }
         else
         {
-            std::cout << "ERROR: Unrecognized argument \"" << arg << "\"\n";
+            printf("ERROR: Unrecognized argument \"%.*s\"\n", (int)arg.size(), arg.data());
             return print_usage(), 1;
         }
     }
 
     if (filePath.empty())
     {
-        std::cout << "ERROR: Must specify file path\n";
+        printf("ERROR: Must specify file path\n");
         return print_usage(), 1;
     }
     else if (lines.empty())
     {
-        std::cout << "ERROR: Must specify line number(s)\n";
+        printf("ERROR: Must specify line number(s)\n");
         return print_usage(), 1;
     }
 
@@ -174,7 +174,7 @@ int main(int argc, char** argv)
     std::ifstream stream(filePath);
     if (stream.fail())
     {
-        std::cout << "ERROR: Failed to open file \"" << filePath << "\"\n";
+        printf("ERROR: Failed to open file \"%s\"\n", filePath.c_str());
         return 1;
     }
 
@@ -295,8 +295,8 @@ int main(int argc, char** argv)
 
     for (auto line : lines)
     {
-        std::cout << "Requirements for line " << line << " being included in the translation unit:\n";
+        printf("Requirements for line %d being included in the translation unit:\n", line);
         process_line(line, conditionals);
-        std::cout << '\n';
+        printf("\n");
     }
 }
